@@ -99,9 +99,28 @@ try {
     }
     if (-not $ready) { throw "Shiny HTTP smoke test failed: $(Get-Content $stderr -Raw)" }
 } finally {
-    if (-not $server.HasExited) { Stop-Process -Id $server.Id -Force }
+    # Rscript can launch a child process on Windows; stop the entire tree.
+    if (-not $server.HasExited) {
+        & taskkill.exe /PID $server.Id /T /F | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            $server.Refresh()
+            if (-not $server.HasExited) { throw "Could not stop the Shiny test process tree." }
+        }
+    }
+    if (-not $server.WaitForExit(15000)) { throw "Shiny test process did not exit." }
+    $server.Dispose()
 }
-Remove-Item $relocated -Recurse -Force
+# Windows may retain directory/DLL locks briefly after process termination.
+for ($attempt = 1; $attempt -le 6; $attempt++) {
+    try {
+        Remove-Item $relocated -Recurse -Force -ErrorAction Stop
+        break
+    } catch {
+        if ($attempt -eq 6) {
+            Write-Warning "Temporary test folder could not be removed: $relocated. Continuing ZIP creation. $($_.Exception.Message)"
+        } else { Start-Sleep -Seconds 1 }
+    }
+}
 
 $zip = Join-Path $dist "abis-windows-x64.zip"
 Compress-Archive -Path $bundle -DestinationPath $zip -CompressionLevel Optimal
