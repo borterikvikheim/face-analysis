@@ -1,0 +1,9 @@
+RowId;ThresholdProfileName;ExpectedFound;ExpectedRank;ExpectedScore;BestNonMatchRank;BestNonMatchScore;ScoreDrop;CandidateCount
+sample-001;Sample_Passport;True;1;920;2;540;380;15
+sample-002;Sample_Passport;True;2;730;1;760;-30;15
+sample-003;Sample_Passport;False;;;1;610;;15
+sample-004;Sample_Passport;True;1;590;2;550;40;15
+sample-005;Sample_Foreigner;True;1;900;2;600;300;15
+sample-006;Sample_Foreigner;True;1;880;2;920;-40;15
+sample-007;Sample_Foreigner;False;;;1;950;;15
+sample-008;Sample_Foreigner;True;2;570;1;930;-360;15
